@@ -1,18 +1,12 @@
-//Import Modules and Files
-const brycpt = require("bcrypt");
-const {
-  sendEmail,
-  hashPassword,
-  validateEmail,
-  comparePassword,
-} = require("../Controllers/mainController");
+//Import Functions
+const { hashPassword, comparePassword } = require("../Utils/hashPassword");
+const validateEmail = require("../Utils/validateEmail");
 
 //Import Models
 const Orders = require("../Models/orders");
 const Products = require("../Models/products");
 const UserLogins = require("../Models/userLogins");
 const UserProfiles = require("../Models/userProfiles");
-const { trusted } = require("mongoose");
 
 //Mail Variables
 let toEmail;
@@ -156,17 +150,31 @@ const cancelOrder = async (req, res) => {
     const { cancelReason } = req.body;
     const order = await Orders.findById(req.params.id);
     const profileId = order.ordered_by;
+    const products = order.ordered_products;
     const user = await UserLogins.findOne({ profileId });
     if (!order) return res.json({ message: "Order not found" });
 
     if (["On the way", "Delivered"].includes(order.status))
-      return res.json({ message: "You can't cancel this order now" });
-
+      return res.json({
+        message: `You can't cancel this order now, because it is ${order.status}`,
+      });
+    if (order.status === "Cancelled")
+      return res.json({ message: "Your order is already Cancelled" });
     order.status = "Cancelled";
     order.cancelled_by = "admin";
     order.cancelReason = cancelReason || "Cancelled by Admin";
+    if (order.status === "Cancelled") {
+      for (let prod of products) {
+        const quantity = prod.quantity;
+        const _id = prod.product_id;
+        const prodStock = await Products.findOne({ _id });
+        if (prodStock) {
+          prodStock.stock += quantity;
+          await prodStock.save();
+        }
+      }
+    }
     await order.save();
-
     text = "Your order cancelled by admin";
     const userMail = await sendEmail(user.email, "Cancel Order", text);
     res.json({
@@ -179,8 +187,19 @@ const cancelOrder = async (req, res) => {
   }
 };
 
+//Delete Order 
+const delOrder = async (req, res) => {
+  try {
+    const order = await Orders.findByIdAndDelete(req.params.id)
+    res.json({message: "Order Deleted"})
+  } catch (error) {
+    res.json({ message: "Something went wrong!", Error: error.message });
+  }
+}
+
 //Export Functions
 module.exports = {
+  delOrder,
   addProduct,
   viewOrders,
   delProduct,

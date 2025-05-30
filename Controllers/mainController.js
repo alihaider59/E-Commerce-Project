@@ -1,60 +1,20 @@
-const dbConnection = require("../DB Connection/mongoDB");
+const dbConnection = require("../DB/db");
 const secret = "abc123";
 dbConnection();
 
-//Import Modules and Files
-const brycpt = require("bcrypt");
+//Import Modules
 const jwt = require("jsonwebtoken");
-const nodemailer = require("nodemailer");
+
+//Import Functions
+const sendEmail = require("../Utils/sendEmail");
+const validateEmail = require("../Utils/validateEmail");
+const { hashPassword, comparePassword } = require("../Utils/hashPassword");
 
 //Import Models
 const Orders = require("../Models/orders");
 const Products = require("../Models/products");
 const UserLogins = require("../Models/userLogins");
 const UserProfiles = require("../Models/userProfiles");
-
-//Sending Email
-const sendEmail = async (toEmail, subject, text) => {
-  const tranporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: "ali.haider.cp59@gmail.com",
-      pass: "lghi ewdn lryo tqud",
-    },
-  });
-
-  const mailOptions = {
-    from: "ali.haider.cp59@gmail.com",
-    to: toEmail,
-    subject: subject,
-    text: text,
-  };
-
-  try {
-    await tranporter.sendMail(mailOptions);
-    return { message: "Mail Sent Successfully" };
-  } catch (error) {
-    return { message: "Something went wrong in sending mail", error };
-  }
-};
-
-//Email Validation
-const validateEmail = (email) => {
-  const emailRegex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
-  return emailRegex.test(email);
-};
-
-//Hash Password
-const hashPassword = async (password) => {
-  const hashedPW = await brycpt.hash(password, 10);
-  return hashedPW;
-};
-
-//Compare Password
-const comparePassword = async (password, hashedPassword) => {
-  const isMatch = await brycpt.compare(password, hashedPassword);
-  return isMatch;
-};
 
 //SignUp
 const signUp = async (req, res) => {
@@ -203,7 +163,21 @@ const resetPassword = async (req, res) => {
 //View All Products
 const getProducts = async (req, res) => {
   try {
-    const allProducts = await Products.find();
+    const { search, category } = req.query;
+    const query = {};
+
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    if (category) {
+      query.category = category;
+    }
+
+    const allProducts = await Products.find(query);
     res.json({ message: "All Products", data: allProducts });
   } catch (error) {
     res.json({ message: "Something went wrong!", Error: error.message });
@@ -256,7 +230,7 @@ const orderProduct = async (req, res) => {
     );
     res.json({
       success: true,
-      message: "Ordered Placed Successfully",
+      message: "Order Placed Successfully",
       userMail: userMail?.message || "Mail not sent",
       adminMail: adminMail?.message || "Mail not sent",
       Status: createOrder.status,
@@ -284,17 +258,31 @@ const cancelOrder = async (req, res) => {
     const { profileId, email } = req.user;
     const { cancelReason } = req.body;
     const order = await Orders.findById(req.params.id);
+    const products = order.ordered_products;
     const user = await UserProfiles.findOne({ _id: profileId });
     if (!order) return res.json({ message: "Order not found" });
 
     if (["On the way", "Delivered"].includes(order.status))
-      return res.json({ message: "You can't cancel this order now" });
+      return res.json({
+        message: `You can't cancel this order now, because it is ${order.status}`,
+      });
+    if (order.status === "Cancelled")
+      return res.json({ message: "Your order is already Cancelled" });
     order.status = "Cancelled";
     order.cancelled_by = user.role;
     order.cancelReason = cancelReason || "No reason provided";
-    await order.save();
     if (order.status === "Cancelled") {
+      for (let prod of products) {
+        const quantity = prod.quantity;
+        const _id = prod.product_id;
+        const prodStock = await Products.findOne({ _id });
+        if (prodStock) {
+          prodStock.stock += quantity;
+          await prodStock.save();
+        }
+      }
     }
+    await order.save();
     const text = "Your order cancelled";
     const userMail = await sendEmail(email, "Cancel Order", text);
     res.json({
@@ -311,7 +299,6 @@ const cancelOrder = async (req, res) => {
 module.exports = {
   logIn,
   signUp,
-  sendEmail,
   viewOrders,
   delProfile,
   updateUser,

@@ -5,6 +5,7 @@ router.use(express.json());
 //Import Functions and Middlewares
 const isAdmin = require("../Middlewares/adminMiddlewares/isAdmin");
 const {
+  delOrder,
   delProduct,
   viewOrders,
   addProduct,
@@ -20,8 +21,9 @@ router.get("/total-orders", isAdmin, viewOrders);
 router.post("/add-product", isAdmin, addProduct);
 router.get("/all-products", isAdmin, getProducts);
 router.post("/create-admin", isAdmin, createAdmin);
-router.delete("/delete-product/:id", isAdmin, delProduct);
+router.delete("/delete-order/:id", isAdmin, delOrder);
 router.patch("/cancel-order/:id", isAdmin, cancelOrder);
+router.delete("/delete-product/:id", isAdmin, delProduct);
 router.patch("/update-product/:id", isAdmin, updateProduct);
 router.patch("/update-order-status/:id", isAdmin, updateStatus);
 
