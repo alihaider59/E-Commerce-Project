@@ -12,7 +12,10 @@ const { hashPassword, comparePassword } = require("../Utils/hashPassword");
 
 //Import Models
 const Orders = require("../Models/orders");
+const Reviews = require("../Models/reviews");
 const Products = require("../Models/products");
+const Wishlists = require("../Models/wishlist");
+const Categories = require("../Models/category");
 const UserLogins = require("../Models/userLogins");
 const UserProfiles = require("../Models/userProfiles");
 
@@ -55,7 +58,7 @@ const logIn = async (req, res) => {
         email: user.email,
         profileId: user.profileId,
       };
-      const token = jwt.sign(payload, secret, { expiresIn: "1h" });
+      const token = jwt.sign(payload, secret, { expiresIn: "1d" });
       res.json({ message: "Login Successfully", token });
     }
   } catch (error) {
@@ -295,21 +298,231 @@ const cancelOrder = async (req, res) => {
   }
 };
 
+//Get Categories
+const getCategories = async (req, res) => {
+  try {
+    const allCategories = await Categories.find();
+    if (!allCategories) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Categories not found", code: 404 });
+    }
+    res.status(200).json({
+      success: true,
+      message: "Categories Sent",
+      data: allCategories,
+      code: 200,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message, code: 500 });
+  }
+};
+
+//Products for Specific Category
+const productsForCategory = async (req, res) => {
+  try {
+    const products = await Products.find({ category: req.params.id });
+    if (products.length === 0) {
+      return res.status(200).json({
+        success: true,
+        message: "No products available",
+        code: 200,
+      });
+    }
+    res.status(200).json({
+      success: true,
+      message: "Available Products for this category",
+      data: products,
+      code: 200,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      Error: error.message,
+      code: 500,
+    });
+  }
+};
+
+//Add Product ot Wishlist
+const addToWishlist = async (req, res) => {
+  try {
+    const userId = req.user.profileId;
+    const { productId } = req.body;
+    const wishlist = await Wishlists.create({ userId, productId });
+
+    res.status(201).json({
+      success: true,
+      message: "Product added to wishlist",
+      data: wishlist,
+      code: 201,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      Error: error.message,
+      code: 500,
+    });
+  }
+};
+
+//View Wishlist
+const viewWishlist = async (req, res) => {
+  try {
+    const userId = req.user.profileId;
+    const wishlist = await Wishlists.find({ userId });
+    if (wishlist.length === 0) {
+      return res.status(200).json({
+        success: true,
+        message: "No product in your wishlist",
+        code: 200,
+      });
+    }
+    res.status(200).json({
+      success: true,
+      message: "Your wishlist",
+      data: wishlist,
+      code: 200,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      Error: error.message,
+      code: 500,
+    });
+  }
+};
+
+//Remove Product from Wishlist
+const removeFromWL = async (req, res) => {
+  try {
+    const wishlist = await Wishlists.findByIdAndDelete(req.params.id);
+    res.status(200).json({
+      success: true,
+      message: "Product removed successfully",
+      data: wishlist,
+      code: 200,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      Error: error.message,
+      code: 500,
+    });
+  }
+};
+
+//Reviews
+const reviews = async (req, res) => {
+  try {
+    const review_by = req.user.profileId;
+    const review = await Reviews.create({ review_by, ...req.body });
+    res
+      .status(200)
+      .json({ success: true, message: "Feedback added", code: 200 });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      Error: error.message,
+      code: 500,
+    });
+  }
+};
+
+//Update Reviews
+const updateReviews = async (req, res) => {
+  try {
+    const { rating, comment } = req.body;
+    const review = await Reviews.findByIdAndUpdate(
+      req.params.id,
+      {
+        rating,
+        comment,
+      },
+      { new: true }
+    );
+    res.status(200).json({
+      success: true,
+      message: "Review Updated",
+      data: review,
+      code: 200,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      Error: error.message,
+      code: 500,
+    });
+  }
+};
+
+//Delete Reviews
+const delReviews = async (req, res) => {
+  try {
+    const review = await Reviews.findByIdAndDelete(req.params.id);
+    res.status(200).json({
+      success: true,
+      message: "Review Deleted",
+      data: review,
+      code: 200,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      Error: error.message,
+      code: 500,
+    });
+  }
+};
+
+//Get Reviews
+const getReviews = async (req, res) => {
+  try {
+    const reviews = await Reviews.find({product:req.params.id});
+    res
+      .status(200)
+      .json({ success: true, message: "Reviews", data: reviews, code: 200 });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      Error: error.message,
+      code: 500,
+    });
+  }
+};
+
 //Export Functions
 module.exports = {
   logIn,
   signUp,
+  reviews,
   viewOrders,
+  getReviews,
   delProfile,
+  delReviews,
   updateUser,
   getOneProd,
   getProducts,
   verifyEmail,
   cancelOrder,
+  viewWishlist,
   orderProduct,
   hashPassword,
+  removeFromWL,
+  updateReviews,
+  addToWishlist,
+  getCategories,
   validateEmail,
   resetPassword,
   forgetPassowrd,
   comparePassword,
+  productsForCategory,
 };

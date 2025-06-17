@@ -4,7 +4,9 @@ const validateEmail = require("../Utils/validateEmail");
 
 //Import Models
 const Orders = require("../Models/orders");
+const Reviews = require("../Models/reviews");
 const Products = require("../Models/products");
+const Categories = require("../Models/category");
 const UserLogins = require("../Models/userLogins");
 const UserProfiles = require("../Models/userProfiles");
 
@@ -52,7 +54,7 @@ const addProduct = async (req, res) => {
 //View Products
 const getProducts = async (req, res) => {
   try {
-    const allProducts = await Products.find();
+    const allProducts = await Products.find()
     res.json({ message: "All Products", data: allProducts });
   } catch (error) {
     res.json({ message: "Something went wrong!", Error: error.message });
@@ -187,25 +189,154 @@ const cancelOrder = async (req, res) => {
   }
 };
 
-//Delete Order 
+//Delete Order
 const delOrder = async (req, res) => {
   try {
-    const order = await Orders.findByIdAndDelete(req.params.id)
-    res.json({message: "Order Deleted"})
+    const order = await Orders.findByIdAndDelete(req.params.id);
+    res.json({ message: "Order Deleted" });
   } catch (error) {
     res.json({ message: "Something went wrong!", Error: error.message });
   }
-}
+};
+
+//Create Category
+const createCtgry = async (req, res) => {
+  try {
+    const category = req.body;
+    const newCtgry = await Categories.create(category);
+    return res.status(200).json({
+      success: true,
+      message: "Category created successfully",
+      data: newCtgry,
+      code: 200,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+      code: 500,
+    });
+  }
+};
+
+//Get Categories
+const getCategories = async (req, res) => {
+  try {
+    const allCategories = await Categories.find();
+    if (!allCategories) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Categories not found", code: 404 });
+    }
+    res
+      .status(200)
+      .json({ success: true, message: "Categories Sent", data: allCategories, code: 200 });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message, code: 500 });
+  }
+};
+
+//Update Category
+const updateCtgry = async (req, res) => {
+  try {
+    const ctgryFields = req.body;
+    const category = await Categories.findByIdAndUpdate(
+      req.params.id,
+      {
+        $set: ctgryFields,
+      },
+      { new: true }
+    );
+
+    if (!category) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Category not found", code: 404 });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Category Updated",
+      data: category,
+      code: 200,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message, code: 500 });
+  }
+};
+
+//Delete Category
+const delCtgry = async (req, res) => {
+  try {
+    const category = await Categories.findByIdAndDelete(req.params.id);
+
+    if (!category) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Category not found", code: 404 });
+    }
+
+    res
+      .status(200)
+      .json({ success: true, message: "Category Deleted", data: category, code: 200 });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message, code: 500 });
+  }
+};
+
+//Delete Reviews
+const delReviews = async (req, res) => {
+  try {
+    const review = await Reviews.findByIdAndDelete(req.params.id);
+    res.status(200).json({
+      success: true,
+      message: "Review deleted by admin",
+      data: review,
+      code: 200,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      Error: error.message,
+      code: 500,
+    });
+  }
+};
+
+//Get Reviews
+const getReviews = async (req, res) => {
+  try {
+    const reviews = await Reviews.find({product:req.params.id});
+    res
+      .status(200)
+      .json({ success: true, message: "Reviews", data: reviews, code: 200 });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      Error: error.message,
+      code: 500,
+    });
+  }
+};
 
 //Export Functions
 module.exports = {
   delOrder,
+  delCtgry,
+  getReviews,
+  delReviews,
   addProduct,
   viewOrders,
   delProduct,
   getProducts,
+  createCtgry,
+  updateCtgry,
   createAdmin,
   cancelOrder,
   updateStatus,
+  getCategories,
   updateProduct,
 };
