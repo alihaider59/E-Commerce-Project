@@ -26,7 +26,9 @@ const signUp = async (req, res) => {
 
     const isValid = validateEmail(email);
     if (!isValid) {
-      return res.json({ message: "Email is not valid" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Email is not valid", code: 400 });
     }
 
     const hashedPass = await hashPassword(password);
@@ -36,9 +38,16 @@ const signUp = async (req, res) => {
       password: hashedPass,
       profileId: newSignUp._id,
     });
-    res.json({ message: "Signed Up Successfully" });
+    res
+      .status(201)
+      .json({ success: true, message: "Signed Up Successfully", code: 201 });
   } catch (error) {
-    res.json({ message: "Something went wrong!", Error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+      code: 500,
+    });
   }
 };
 
@@ -48,21 +57,37 @@ const logIn = async (req, res) => {
     const { email, password } = req.body;
     const user = await UserLogins.findOne({ email });
     if (!user) {
-      return res.json({ message: "User does not exist" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User does not exist", code: 404 });
     }
     const isMatch = await comparePassword(password, user.password);
     if (!isMatch) {
-      return res.json({ message: "Passowrd not match" });
+      return res
+        .status(401)
+        .json({ success: false, message: "Passowrd not match", code: 401 });
     } else {
       const payload = {
         email: user.email,
         profileId: user.profileId,
       };
       const token = jwt.sign(payload, secret, { expiresIn: "1d" });
-      res.json({ message: "Login Successfully", token });
+      res.status(200).json({
+        success: true,
+        message: "Login Successfully",
+        data: {
+          token: token,
+        },
+        code: 200,
+      });
     }
   } catch (error) {
-    res.json({ message: "Something went wrong!", Error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+      code: 500,
+    });
   }
 };
 
@@ -71,7 +96,10 @@ const updateUser = async (req, res) => {
   try {
     const { profileId } = req.user;
     const userProf = await UserProfiles.findOne({ _id: profileId });
-    if (!userProf) return res.json({ message: "Profile not found" });
+    if (!userProf)
+      return res
+        .status(404)
+        .json({ success: false, message: "Profile not found", code: 404 });
     const updateFields = {
       ...userProf._doc,
       ...req.body,
@@ -81,9 +109,19 @@ const updateUser = async (req, res) => {
       updateFields,
       { new: true }
     );
-    res.json({ message: "Profile Updated" });
+    res.status(200).json({
+      success: true,
+      message: "Profile Updated",
+      data: updatedProf,
+      code: 200,
+    });
   } catch (error) {
-    res.json({ message: "Something went wrong!", Error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+      code: 500,
+    });
   }
 };
 
@@ -93,9 +131,16 @@ const delProfile = async (req, res) => {
     const { profileId } = req.user;
     const profile = await UserProfiles.findOneAndDelete({ _id: profileId });
     const loginData = await UserLogins.findOneAndDelete({ profileId });
-    res.json({ message: "Deleted Successfully" });
+    res
+      .status(200)
+      .json({ success: true, message: "Deleted Successfully", code: 200 });
   } catch (error) {
-    res.json({ message: "Something went wrong!", Error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+      code: 500,
+    });
   }
 };
 
@@ -105,19 +150,27 @@ const verifyEmail = async (req, res) => {
     const { email } = req.body;
     const isMatch = await UserLogins.findOne({ email });
     if (!isMatch) {
-      return res.json({ message: "Email not exist" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Email not exist", code: 404 });
     }
     const toEmail = "alihaiderjoyia59@gmail.com";
     const subject = "Reset Password";
     const text = "Do you want to reset you password?";
     const isSent = await sendEmail(toEmail, subject, text);
-    res.json({
+    res.status(200).json({
       success: true,
       message: "Email Verified",
-      Mail: isSent?.message || "Mail not sent",
+      mail: isSent?.message || "Mail not sent",
+      code: 200,
     });
   } catch (error) {
-    res.json({ message: "Something went wrong!", Error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+      code: 500,
+    });
   }
 };
 
@@ -131,9 +184,24 @@ const forgetPassowrd = async (req, res) => {
       { $set: { password: hashedPass } },
       { new: true }
     );
-    res.json({ message: "Password Updated" });
+
+    if (!updatePass)
+      return res.status(404).json({
+        success: false,
+        message: "User not found for this email",
+        code: 404,
+      });
+
+    res
+      .status(200)
+      .json({ success: true, message: "Password Updated", code: 200 });
   } catch (error) {
-    res.json({ message: "Something went wrong!", Error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+      code: 500,
+    });
   }
 };
 
@@ -145,7 +213,9 @@ const resetPassword = async (req, res) => {
     const user = await UserLogins.findOne({ profileId });
     const isMatch = await comparePassword(oldPassword, user.password);
     if (!isMatch) {
-      return res.json({ message: "Old password not match" });
+      return res
+        .status(401)
+        .json({ success: false, message: "Old password not match", code: 401 });
     }
     const hashedPass = await hashPassword(newPassword);
     const newPass = await UserLogins.findOneAndUpdate(
@@ -157,9 +227,16 @@ const resetPassword = async (req, res) => {
       },
       { new: true }
     );
-    res.json({ message: "Password Changed" });
+    res
+      .status(200)
+      .json({ success: true, message: "Password Changed", code: 200 });
   } catch (error) {
-    res.json({ message: "Something went wrong!", Error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+      code: 500,
+    });
   }
 };
 
@@ -181,9 +258,26 @@ const getProducts = async (req, res) => {
     }
 
     const allProducts = await Products.find(query);
-    res.json({ message: "All Products", data: allProducts });
+    if (allProducts.length === 0)
+      return res.status(200).json({
+        success: true,
+        message: "Product not found",
+        data: [],
+        code: 200,
+      });
+    res.status(200).json({
+      success: true,
+      message: "All Products",
+      data: allProducts,
+      code: 200,
+    });
   } catch (error) {
-    res.json({ message: "Something went wrong!", Error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+      code: 500,
+    });
   }
 };
 
@@ -191,8 +285,16 @@ const getProducts = async (req, res) => {
 const getOneProd = async (req, res) => {
   try {
     const product = await Products.findById(req.params.id);
-    if(!product) 
-    res.status(200).json({ success: true, message: "View Product", data: product, code: 200 });
+    if (!product)
+      return res
+        .status(404)
+        .json({ success: false, messages: "Product not found", code: 404 });
+    res.status(200).json({
+      success: true,
+      message: "View Product",
+      data: product,
+      code: 200,
+    });
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -211,9 +313,16 @@ const orderProduct = async (req, res) => {
     let total_amount = 0;
     for (let item of ordered_products) {
       const product = await Products.findById(item.product_id);
-      if (!product) return res.status(404).json({ success: false, message: "Product not found", code: 404 });
+      if (!product)
+        return res
+          .status(404)
+          .json({ success: false, message: "Product not found", code: 404 });
       if (product.stock < item.quantity)
-        return res.status(409).json({ success: false, message: `${product.name} is out of stock`, code: 409 });
+        return res.status(409).json({
+          success: false,
+          message: `${product.name} is out of stock`,
+          code: 409,
+        });
 
       total_amount += product.price * item.quantity;
       product.stock -= item.quantity;
@@ -225,7 +334,12 @@ const orderProduct = async (req, res) => {
       shippingAddress,
       total_amount,
     });
-    if (!createOrder) return res.status(500).json({ success: false, message: "Order not placed due to server error", code: 500 });
+    if (!createOrder)
+      return res.status(500).json({
+        success: false,
+        message: "Order not placed due to server error",
+        code: 500,
+      });
     const subject = "Ordered Product";
     const text =
       "Your have ordered some products from E-Commerce. We will inform you in in shortly if your order confirms";
@@ -243,7 +357,7 @@ const orderProduct = async (req, res) => {
       userMail: userMail?.message || "Mail not sent",
       adminMail: adminMail?.message || "Mail not sent",
       status: createOrder.status,
-      code: 200
+      code: 200,
     });
   } catch (error) {
     res.status(500).json({
@@ -260,13 +374,16 @@ const viewOrders = async (req, res) => {
   try {
     const { profileId } = req.user;
     const orders = await Orders.find({ ordered_by: profileId });
-    if (!orders.length === 0) return res.status(200).json({
-      success: true,
-      message: "No orders placed yet",
-      data: [],
-      code: 200
-    });
-    res.status(200).json({ success: true, message: "View Orders", data: orders, code: 200 });
+    if (!orders.length === 0)
+      return res.status(200).json({
+        success: true,
+        message: "No orders placed yet",
+        data: [],
+        code: 200,
+      });
+    res
+      .status(200)
+      .json({ success: true, message: "View Orders", data: orders, code: 200 });
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -287,7 +404,7 @@ const cancelOrder = async (req, res) => {
       return res.status(404).json({
         success: false,
         message: "Order not found",
-        code: 404
+        code: 404,
       });
     const products = order.ordered_products;
     const user = await UserProfiles.findOne({ _id: profileId });
@@ -295,16 +412,21 @@ const cancelOrder = async (req, res) => {
       return res.status(404).json({
         success: false,
         message: "User not found",
-        code: 404
+        code: 404,
       });
     if (["On the way", "Delivered"].includes(order.status)) {
       return res.status(403).json({
         success: false,
-        message: `You can't cancel this order now, because it is ${order.status}`, code: 403
+        message: `You can't cancel this order now, because it is ${order.status}`,
+        code: 403,
       });
     }
     if (order.status === "Cancelled")
-      return res.status(409).json({ success: false, message: "Your order is already Cancelled", code: 409 });
+      return res.status(409).json({
+        success: false,
+        message: "Your order is already Cancelled",
+        code: 409,
+      });
     order.status = "Cancelled";
     order.cancelled_by = user.role;
     order.cancelReason = cancelReason || "No reason provided";
@@ -325,9 +447,9 @@ const cancelOrder = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Order Cancelled",
-      userMail: userMail?.message || "Mail not sent",
+      mail: userMail?.message || "Mail not sent",
       data: order,
-      code: 200
+      code: 200,
     });
   } catch (error) {
     res.status(500).json({
@@ -391,7 +513,7 @@ const productsForCategory = async (req, res) => {
   }
 };
 
-//Add Product ot Wishlist
+//Add Product to Wishlist
 const addToWishlist = async (req, res) => {
   try {
     const userId = req.user.profileId;
@@ -468,8 +590,8 @@ const reviews = async (req, res) => {
     const review_by = req.user.profileId;
     const review = await Reviews.create({ review_by, ...req.body });
     res
-      .status(200)
-      .json({ success: true, message: "Feedback added", code: 200 });
+      .status(201)
+      .json({ success: true, message: "Feedback added", code: 201 });
   } catch (error) {
     res.status(500).json({
       success: false,

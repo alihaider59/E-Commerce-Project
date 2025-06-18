@@ -21,11 +21,15 @@ const createAdmin = async (req, res) => {
     const { email, password, ...otherData } = req.body;
     const isValid = await validateEmail(email);
     if (!isValid) {
-      return res.json({ message: "Email not valid" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Email not valid", code: 400 });
     }
     const isExisting = await UserLogins.findOne({ email });
     if (isExisting) {
-      return res.json({ message: "User already Exist" });
+      return res
+        .status(409)
+        .json({ success: false, message: "User already Exist", code: 409 });
     }
     const hashedPass = await hashPassword(password);
     const newAdmin = await UserProfiles.create({ role: "admin", ...otherData });
@@ -34,9 +38,16 @@ const createAdmin = async (req, res) => {
       password: hashedPass,
       profileId: newAdmin._id,
     });
-    res.json({ message: "Admin Created" });
+    res
+      .status(201)
+      .json({ success: true, message: "Admin Created", code: 201 });
   } catch (error) {
-    res.json({ message: "Something went wrong!", Error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+      code: 500,
+    });
   }
 };
 
@@ -45,19 +56,46 @@ const addProduct = async (req, res) => {
   try {
     const productDetails = req.body;
     const newProduct = await Products.create(productDetails);
-    res.json({ message: "Product Added" });
+    res.status(201).json({
+      success: true,
+      message: "Product Added",
+      data: newProduct,
+      code: 201,
+    });
   } catch (error) {
-    res.json({ message: "Something went wrong!", Error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+      code: 500,
+    });
   }
 };
 
 //View Products
 const getProducts = async (req, res) => {
   try {
-    const allProducts = await Products.find()
-    res.json({ message: "All Products", data: allProducts });
+    const allProducts = await Products.find();
+    if (allProducts.length === 0)
+      return res.status(200).json({
+        success: true,
+        message: "Not any product found",
+        data: [],
+        code: 200,
+      });
+    res.status(200).json({
+      success: true,
+      message: "All Products",
+      data: allProducts,
+      code: 200,
+    });
   } catch (error) {
-    res.json({ message: "Something went wrong!", Error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+      code: 500,
+    });
   }
 };
 
@@ -65,7 +103,10 @@ const getProducts = async (req, res) => {
 const updateProduct = async (req, res) => {
   try {
     const product = await Products.findById(req.params.id);
-    if (!product) return res.json({ message: "Product not found" });
+    if (!product)
+      return res
+        .status(404)
+        .json({ success: false, message: "Product not found", code: 404 });
     const updateFields = {
       ...product._doc,
       ...req.body,
@@ -75,9 +116,19 @@ const updateProduct = async (req, res) => {
       updateFields,
       { new: true }
     );
-    res.json({ message: "Product Updated" });
+    res.status(200).json({
+      success: true,
+      message: "Product Updated",
+      data: updatedProd,
+      code: 200,
+    });
   } catch (error) {
-    res.json({ message: "Something went wrong!", Error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+      code: 500,
+    });
   }
 };
 
@@ -85,9 +136,19 @@ const updateProduct = async (req, res) => {
 const delProduct = async (req, res) => {
   try {
     const delProd = await Products.findByIdAndDelete(req.params.id);
-    res.json({ message: "Product Deleted" });
+    res.status(200).json({
+      success: true,
+      message: "Product Deleted",
+      data: delProd,
+      code: 200,
+    });
   } catch (error) {
-    res.json({ message: "Something went wrong!", Error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+      code: 500,
+    });
   }
 };
 
@@ -95,10 +156,26 @@ const delProduct = async (req, res) => {
 const viewOrders = async (req, res) => {
   try {
     const orders = await Orders.find();
-    if (!orders) return res.json({ message: "No any order placed" });
-    res.json({ message: "Total Orders", data: orders });
+    if (orders.length === 0)
+      return res.status(200).json({
+        success: true,
+        message: "No any order placed",
+        data: [],
+        code: 200,
+      });
+    res.status(200).json({
+      success: true,
+      message: "Total Orders",
+      data: orders,
+      code: 200,
+    });
   } catch (error) {
-    res.json({ message: "Something went wrong!", Error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+      code: 500,
+    });
   }
 };
 
@@ -117,32 +194,43 @@ const updateStatus = async (req, res) => {
     if (order.status === "Confirmed") {
       text = "Your order is Confirmed";
       let mail = await sendEmail(user.email, subject, text);
-      return res.json({
+      return res.status(200).json({
+        success: true,
         message: "Order Status Updated",
-        Status: order.status,
-        Mail: mail?.message || "Mail not sent",
+        status: order.status,
+        mail: mail?.message || "Mail not sent",
+        code: 200,
       });
     }
     if (order.status === "On the way") {
       text = "Your order is on the way";
       const mail = await sendEmail(user.email, subject, text);
-      return res.json({
+      return res.status(200).json({
+        success: true,
         message: "Order Status Updated",
-        Status: order.status,
-        Mail: mail?.message || "Mail not sent",
+        status: order.status,
+        mail: mail?.message || "Mail not sent",
+        code: 200,
       });
     }
     if (order.status === "Delivered") {
       text = "Your order is Delivered";
       const mail = await sendEmail(user.email, subject, text);
-      return res.json({
+      return res.status(200).json({
+        success: true,
         message: "Order Status Updated",
-        Status: order.status,
-        Mail: mail?.message || "Mail not sent",
+        status: order.status,
+        mail: mail?.message || "Mail not sent",
+        code: 200,
       });
     }
   } catch (error) {
-    res.json({ message: "Something went wrong!", Error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+      code: 500,
+    });
   }
 };
 
@@ -154,14 +242,23 @@ const cancelOrder = async (req, res) => {
     const profileId = order.ordered_by;
     const products = order.ordered_products;
     const user = await UserLogins.findOne({ profileId });
-    if (!order) return res.json({ message: "Order not found" });
+    if (!order)
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found", code: 404 });
 
     if (["On the way", "Delivered"].includes(order.status))
-      return res.json({
+      return res.status(403).json({
+        success: false,
         message: `You can't cancel this order now, because it is ${order.status}`,
+        code: 403,
       });
     if (order.status === "Cancelled")
-      return res.json({ message: "Your order is already Cancelled" });
+      return res.status(409).json({
+        success: false,
+        message: "Your order is already Cancelled",
+        code: 409,
+      });
     order.status = "Cancelled";
     order.cancelled_by = "admin";
     order.cancelReason = cancelReason || "Cancelled by Admin";
@@ -179,13 +276,20 @@ const cancelOrder = async (req, res) => {
     await order.save();
     text = "Your order cancelled by admin";
     const userMail = await sendEmail(user.email, "Cancel Order", text);
-    res.json({
+    res.status(200).json({
+      success: true,
       message: "Order Cancelled by admin",
       userMail: userMail?.message || "Mail not sent",
-      Order: order,
+      data: order,
+      code: 200,
     });
   } catch (error) {
-    res.json({ message: "Something went wrong!", Error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+      code: 500,
+    });
   }
 };
 
@@ -193,9 +297,19 @@ const cancelOrder = async (req, res) => {
 const delOrder = async (req, res) => {
   try {
     const order = await Orders.findByIdAndDelete(req.params.id);
-    res.json({ message: "Order Deleted" });
+    res.status(200).json({
+      success: true,
+      message: "Order Deleted",
+      data: order,
+      code: 200,
+    });
   } catch (error) {
-    res.json({ message: "Something went wrong!", Error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+      code: 500,
+    });
   }
 };
 
@@ -224,16 +338,24 @@ const createCtgry = async (req, res) => {
 const getCategories = async (req, res) => {
   try {
     const allCategories = await Categories.find();
-    if (!allCategories) {
+    if (allCategories.length === 0) {
       return res
-        .status(404)
-        .json({ success: false, message: "Categories not found", code: 404 });
+        .status(200)
+        .json({ success: true, message: "Categories not found", data:[], code: 200 });
     }
-    res
-      .status(200)
-      .json({ success: true, message: "Categories Sent", data: allCategories, code: 200 });
+    res.status(200).json({
+      success: true,
+      message: "Categories Sent",
+      data: allCategories,
+      code: 200,
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message, code: 500 });
+     res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+      code: 500,
+    });
   }
 };
 
@@ -262,7 +384,12 @@ const updateCtgry = async (req, res) => {
       code: 200,
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message, code: 500 });
+     res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+      code: 500,
+    });
   }
 };
 
@@ -277,11 +404,19 @@ const delCtgry = async (req, res) => {
         .json({ success: false, message: "Category not found", code: 404 });
     }
 
-    res
-      .status(200)
-      .json({ success: true, message: "Category Deleted", data: category, code: 200 });
+    res.status(200).json({
+      success: true,
+      message: "Category Deleted",
+      data: category,
+      code: 200,
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message, code: 500 });
+     res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+      code: 500,
+    });
   }
 };
 
@@ -308,7 +443,7 @@ const delReviews = async (req, res) => {
 //Get Reviews
 const getReviews = async (req, res) => {
   try {
-    const reviews = await Reviews.find({product:req.params.id});
+    const reviews = await Reviews.find({ product: req.params.id });
     res
       .status(200)
       .json({ success: true, message: "Reviews", data: reviews, code: 200 });
