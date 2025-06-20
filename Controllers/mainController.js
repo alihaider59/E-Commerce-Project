@@ -7,6 +7,7 @@ const jwt = require("jsonwebtoken");
 
 //Import Functions
 const sendEmail = require("../Utils/sendEmail");
+const addGlobalDeal = require("../Utils/addDeal");
 const validateEmail = require("../Utils/validateEmail");
 const { hashPassword, comparePassword } = require("../Utils/hashPassword");
 
@@ -17,6 +18,7 @@ const Products = require("../Models/products");
 const Wishlists = require("../Models/wishlist");
 const Categories = require("../Models/category");
 const UserLogins = require("../Models/userLogins");
+const GlobalDeals = require("../Models/globalDeals");
 const UserProfiles = require("../Models/userProfiles");
 
 //SignUp
@@ -265,10 +267,17 @@ const getProducts = async (req, res) => {
         data: [],
         code: 200,
       });
+
+    const globalDeal = await GlobalDeals.findOne({ isActive: true });
+    const updatedProducts = allProducts.map((product) => {
+      const updatedProduct = product.toObject();
+      addGlobalDeal(updatedProduct, globalDeal);
+      return updatedProduct;
+    });
     res.status(200).json({
       success: true,
       message: "All Products",
-      data: allProducts,
+      data: updatedProducts,
       code: 200,
     });
   } catch (error) {

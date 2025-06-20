@@ -23,6 +23,15 @@ const productSchema = new mongoose.Schema({
     default: 1,
     required: true,
   },
+  discountedPrice: {
+    type: Number,
+  },
+  flashDeal: {
+    isActive: Boolean,
+    discountPercent: Number,
+    startTime: Date,
+    endTime: Date,
+  },
   images: [{ type: String, required: true }],
 });
 

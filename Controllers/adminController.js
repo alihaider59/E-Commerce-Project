@@ -8,6 +8,7 @@ const Reviews = require("../Models/reviews");
 const Products = require("../Models/products");
 const Categories = require("../Models/category");
 const UserLogins = require("../Models/userLogins");
+const GlobalDeals = require("../Models/globalDeals");
 const UserProfiles = require("../Models/userProfiles");
 
 //Mail Variables
@@ -54,8 +55,25 @@ const createAdmin = async (req, res) => {
 //Add Product
 const addProduct = async (req, res) => {
   try {
-    const productDetails = req.body;
-    const newProduct = await Products.create(productDetails);
+    const { flashDeal, ...product } = req.body;
+    const now = new Date();
+    let newProduct;
+    if (
+      flashDeal?.isActive &&
+      now >= new Date(flashDeal.startTime) &&
+      now <= new Date(flashDeal.endTime)
+    ) {
+      const discountedPrice =
+        product.price - (product.price * flashDeal.discountPercent) / 100;
+      newProduct = await Products.create({
+        discountedPrice,
+        flashDeal,
+        ...product,
+      });
+      product.dealType = "flash";
+    } else {
+      newProduct = await Products.create({ ...product });
+    }
     res.status(201).json({
       success: true,
       message: "Product Added",
@@ -339,9 +357,12 @@ const getCategories = async (req, res) => {
   try {
     const allCategories = await Categories.find();
     if (allCategories.length === 0) {
-      return res
-        .status(200)
-        .json({ success: true, message: "Categories not found", data:[], code: 200 });
+      return res.status(200).json({
+        success: true,
+        message: "Categories not found",
+        data: [],
+        code: 200,
+      });
     }
     res.status(200).json({
       success: true,
@@ -350,7 +371,7 @@ const getCategories = async (req, res) => {
       code: 200,
     });
   } catch (error) {
-     res.status(500).json({
+    res.status(500).json({
       success: false,
       message: "Internal server error",
       error: error.message,
@@ -384,7 +405,7 @@ const updateCtgry = async (req, res) => {
       code: 200,
     });
   } catch (error) {
-     res.status(500).json({
+    res.status(500).json({
       success: false,
       message: "Internal server error",
       error: error.message,
@@ -411,7 +432,7 @@ const delCtgry = async (req, res) => {
       code: 200,
     });
   } catch (error) {
-     res.status(500).json({
+    res.status(500).json({
       success: false,
       message: "Internal server error",
       error: error.message,
@@ -457,9 +478,128 @@ const getReviews = async (req, res) => {
   }
 };
 
+//Add / Remove / Edit Flash Deals
+const addDeals = async (req, res) => {
+  try {
+    const { discountPercent, flashDeal } = req.body;
+    if (
+      [flashDeal?.discountPercent, discountPercent].some(
+        (val) => val < 0 || val > 100
+      )
+    )
+      return res.status(400).json({
+        success: false,
+        message: "Invalid discount percentage",
+        code: 400,
+      });
+    if (
+      discountPercent === 0 ||
+      flashDeal.discountPercent === 0 ||
+      !flashDeal.isActive
+    ) {
+      const product = await Products.findByIdAndUpdate(
+        req.params.id,
+        {
+          $unset: { discountedPrice: "", flashDeal },
+        },
+        { new: true }
+      );
+      return res.status(200).json({
+        success: true,
+        message: "Discount Removed",
+        data: product,
+        code: 200,
+      });
+    }
+    const product = await Products.findById(req.params.id);
+    const price = product.price;
+    const discount = (price * flashDeal.discountPercent) / 100;
+    const discountedPrice = price - discount;
+    const discountedProduct = await Products.findByIdAndUpdate(
+      req.params.id,
+      { flashDeal, discountedPrice },
+      { new: true }
+    );
+    res.status(200).json({
+      success: true,
+      message: "Discount Added",
+      data: discountedProduct,
+      code: 200,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      Error: error.message,
+      code: 500,
+    });
+  }
+};
+
+//Global Deals
+const globalDeals = async (req, res) => {
+  try {
+    const dealData = req.body;
+    const newDeal = await GlobalDeals.create(dealData);
+    res.status(201).json({
+      success: true,
+      message: "Global deal created",
+      data: newDeal,
+      code: 201,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      Error: error.message,
+      code: 500,
+    });
+  }
+};
+
+//Update Global Deals
+const updateGlobalDeals = async (req, res) => {
+  try {
+    const dealData = req.body;
+    const deal = await GlobalDeals.findByIdAndUpdate(
+      req.params.id,
+      { $set: dealData },
+      { new: true }
+    );
+    res
+      .status(200)
+      .json({ success: true, message: "Deal updated", data: deal, code: 200 });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      Error: error.message,
+      code: 500,
+    });
+  }
+};
+
+//Delete Global Deals
+const delGlobalDeals = async (req, res) => {
+  try {
+    const deal = await GlobalDeals.findByIdAndDelete(req.params.id);
+    res
+      .status(200)
+      .json({ success: true, message: "Deal deleted", data: deal, code: 200 });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      Error: error.message,
+      code: 500,
+    });
+  }
+};
+
 //Export Functions
 module.exports = {
   delOrder,
+  addDeals,
   delCtgry,
   getReviews,
   delReviews,
@@ -470,8 +610,11 @@ module.exports = {
   createCtgry,
   updateCtgry,
   createAdmin,
+  globalDeals,
   cancelOrder,
   updateStatus,
   getCategories,
   updateProduct,
+  delGlobalDeals,
+  updateGlobalDeals,
 };
