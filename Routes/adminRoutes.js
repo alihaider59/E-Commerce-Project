@@ -28,35 +28,35 @@ const {
 
 //Routes
 
-// Admin Routes
+// // Admin Routes
 router.post("/admin/create", createAdmin);
 
-// Product Routes
+// // Product Routes
 router.get("/products", isAdmin, getProducts);
 router.post("/products", isAdmin, addProduct);
-router.patch("/products/:id", isAdmin, updateProduct);
 router.delete("/products/:id", isAdmin, delProduct);
+router.patch("/products/:id", isAdmin, updateProduct);
 
-// Category Routes
-router.get("/categories", isAdmin, getCategories);
+// // Category Routes
 router.post("/categories", isAdmin, createCtgry);
-router.patch("/categories/:id", isAdmin, updateCtgry);
+router.get("/categories", isAdmin, getCategories);
 router.delete("/categories/:id", isAdmin, delCtgry);
+router.patch("/categories/:id", isAdmin, updateCtgry);
 
-// Order Routes
+// // Order Routes
 router.get("/orders", isAdmin, viewOrders);
-router.patch("/orders/:id/status", isAdmin, updateStatus);
-router.patch("/orders/:id/cancel", isAdmin, cancelOrder);
 router.delete("/orders/:id", isAdmin, delOrder);
+router.patch("/orders/:id/cancel", isAdmin, cancelOrder);
+router.patch("/orders/:id/status", isAdmin, updateStatus);
 
-// Deal Routes
+// // Deal Routes
 router.post("/deals/global", isAdmin, globalDeals);
-router.patch("/deals/global/:id", isAdmin, updateGlobalDeals);
 router.delete("/deals/global/:id", isAdmin, delGlobalDeals);
+router.patch("/deals/global/:id", isAdmin, updateGlobalDeals);
 
 router.patch("/deals/product/:id", isAdmin, addDeals); // per-product deal
 
-// Feedback Routes
+// // Feedback Routes
 router.get("/feedback/:id", isAdmin, getReviews);
 router.delete("/feedback/:id", isAdmin, delReviews);
 

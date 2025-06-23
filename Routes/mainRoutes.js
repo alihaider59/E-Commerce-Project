@@ -30,39 +30,39 @@ const {
 
 //Routes
 
-// Auth Routes
-router.post("/auth/signup", signUp);
+// // Auth Routes
 router.post("/auth/login", logIn);
+router.post("/auth/signup", signUp);
 router.post("/auth/verify-email", verifyEmail);
 router.patch("/auth/forgot-password", forgetPassowrd);
 router.patch("/auth/reset-password", verifyToken, resetPassword);
 
-// User Profile Routes
+// // User Profile Routes
 router.patch("/user/profile", verifyToken, updateUser);
 router.delete("/user/profile", verifyToken, delProfile);
 
-// Product Routes
+// // Product Routes
 router.get("/products", getProducts);
 router.get("/products/:id", getOneProd);
 router.get("/products/category/:id", productsForCategory);
 
-// Wishlist Routes
+// // Wishlist Routes
 router.get("/wishlist", verifyToken, viewWishlist);
 router.post("/wishlist", verifyToken, addToWishlist);
 router.delete("/wishlist/:id", verifyToken, removeFromWL);
 
-// Order Routes
-router.post("/orders", verifyToken, orderProduct);
+// // Order Routes
 router.get("/orders", verifyToken, viewOrders);
+router.post("/orders", verifyToken, orderProduct);
 router.patch("/orders/:id/cancel", verifyToken, cancelOrder);
 
-// Feedback Routes
+// // Feedback Routes
 router.get("/feedback/:id", getReviews); // public view
 router.post("/feedback", verifyToken, reviews);
-router.patch("/feedback/:id", verifyToken, updateReviews);
 router.delete("/feedback/:id", verifyToken, delReviews);
+router.patch("/feedback/:id", verifyToken, updateReviews);
 
-// Category Routes
+// // Category Routes
 router.get("/categories", getCategories);
 
 // router.post("/login", logIn);
