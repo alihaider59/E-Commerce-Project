@@ -6,6 +6,8 @@ const express = require("express");
 const rateLimit = require("express-rate-limit");
 const app = express();
 
+require('dotenv').config();
+
 // 1. Set secure headers
 app.use(helmet());
 
@@ -42,4 +44,5 @@ app.use("/ecommerce/public", limiter, express.static(path.join(__dirname, "Publi
 const port = 8000;
 app.listen(port, () => {
   console.log(`Server is started at:${port}`);
+  console.log("Mongo URI:", process.env.MONGO_URI);
 });

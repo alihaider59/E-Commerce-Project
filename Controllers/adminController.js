@@ -55,17 +55,31 @@ const createAdmin = async (req, res) => {
 //Get Users
 const getUsers = async (req, res) => {
   try {
-    const allProfiles = await UserProfiles.find()
-    if(allProfiles.length === 0) return res.status(200).json({success: true, message: "Not any user registered", data: [], code: 200})
+    const allProfiles = await UserProfiles.find();
+    if (allProfiles.length === 0)
+      return res.status(200).json({
+        success: true,
+        message: "Not any user registered",
+        data: [],
+        code: 200,
+      });
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: "All User's Profiles",
+        data: allProfiles,
+        code: 200,
+      });
   } catch (error) {
-     res.status(500).json({
+    res.status(500).json({
       success: false,
       message: "Internal server error",
       error: error.message,
       code: 500,
     });
   }
-}
+};
 
 //Add Product
 const addProduct = async (req, res) => {
@@ -616,6 +630,7 @@ module.exports = {
   delOrder,
   addDeals,
   delCtgry,
+  getUsers,
   getReviews,
   delReviews,
   addProduct,

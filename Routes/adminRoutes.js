@@ -8,6 +8,7 @@ const {
   delOrder,
   delCtgry,
   addDeals,
+  getUsers,
   getReviews,
   delReviews,
   delProduct,
@@ -23,10 +24,13 @@ const {
   getCategories,
   updateProduct,
   delGlobalDeals,
-  updateGlobalDeals
+  updateGlobalDeals,
 } = require("../Controllers/adminController");
 
 //Routes
+
+// // User Profiles Routes
+router.get("/profiles", isAdmin, getUsers);
 
 // // Admin Routes
 router.post("/admin/create", createAdmin);
