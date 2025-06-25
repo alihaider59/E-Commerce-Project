@@ -6,7 +6,7 @@ const express = require("express");
 const rateLimit = require("express-rate-limit");
 const app = express();
 
-require('dotenv').config();
+require("dotenv").config();
 
 // 1. Set secure headers
 app.use(helmet());
@@ -18,6 +18,8 @@ app.use(
     credentials: true,
   })
 );
+
+app.options("*", cors());
 
 // 3. Prevent HTTP parameter pollution
 app.use(hpp());
@@ -38,7 +40,11 @@ const adminRoutes = require("./Routes/adminRoutes");
 //Mounting All Routes
 app.use("/ecommerce", limiter, mainRoutes);
 app.use("/ecommerce/admin", limiter, adminRoutes);
-app.use("/ecommerce/public", limiter, express.static(path.join(__dirname, "Public")));
+app.use(
+  "/ecommerce/public",
+  limiter,
+  express.static(path.join(__dirname, "Public"))
+);
 
 //App Listening
 const port = 8000;
