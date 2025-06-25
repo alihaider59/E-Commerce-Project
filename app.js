@@ -41,7 +41,7 @@ app.use("/ecommerce/admin", limiter, adminRoutes);
 app.use("/ecommerce/public", limiter, express.static(path.join(__dirname, "Public")));
 
 //App Listening
-const port = 8000;
+const port = 3001;
 app.listen(port, () => {
   console.log(`Server is started at:${port}`);
   console.log("Mongo URI:", process.env.MONGO_URI);
