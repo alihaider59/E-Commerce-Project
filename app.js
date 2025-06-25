@@ -14,7 +14,7 @@ app.use(helmet());
 // 2. Enable CORS for your frontend domain only
 app.use(
   cors({
-    origin: "http://localhost:3000", // change in prod
+    origin: ["http://localhost:3000", "http://localhost:3001"],
     credentials: true,
   })
 );
