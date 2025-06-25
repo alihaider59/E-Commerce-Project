@@ -19,8 +19,6 @@ app.use(
   })
 );
 
-app.options("*", cors());
-
 // 3. Prevent HTTP parameter pollution
 app.use(hpp());
 
