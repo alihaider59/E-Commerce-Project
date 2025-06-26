@@ -38,7 +38,7 @@ const adminRoutes = require("./Routes/adminRoutes");
 //Mounting All Routes
 app.use("/ecommerce", limiter, mainRoutes);
 app.use("/ecommerce/admin", limiter, adminRoutes);
-app.use(limiter, express.static(path.join(__dirname, "public")));
+app.use("/public", limiter, express.static(path.join(__dirname, "public")));
 
 //App Listening
 const port = 8000;
