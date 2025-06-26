@@ -41,7 +41,7 @@ app.use("/ecommerce/admin", limiter, adminRoutes);
 app.use(
   "/ecommerce/public",
   limiter,
-  express.static(path.join(__dirname, "Public"))
+  express.static(path.join(__dirname, "public"))
 );
 
 //App Listening
