@@ -694,7 +694,7 @@ const checkout = async (req, res) => {
         currency: "usd",
         productData: { name: item.name },
         unitPrice: Price * 100,
-      },
+      }
     });
   } catch (error) {
     res.status(500).json({
