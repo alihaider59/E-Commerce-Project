@@ -6,6 +6,7 @@ dbConnection();
 const jwt = require("jsonwebtoken");
 
 //Import Functions
+const stripe = require("../Utils/stripe");
 const sendEmail = require("../Utils/sendEmail");
 const addGlobalDeal = require("../Utils/addDeal");
 const validateEmail = require("../Utils/validateEmail");
@@ -14,6 +15,7 @@ const { hashPassword, comparePassword } = require("../Utils/hashPassword");
 //Import Models
 const Orders = require("../Models/orders");
 const Reviews = require("../Models/reviews");
+const Payments = require("../Models/payments");
 const Products = require("../Models/products");
 const Wishlists = require("../Models/wishlist");
 const Categories = require("../Models/category");
@@ -666,6 +668,34 @@ const getReviews = async (req, res) => {
     res
       .status(200)
       .json({ success: true, message: "Reviews", data: reviews, code: 200 });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      Error: error.message,
+      code: 500,
+    });
+  }
+};
+
+//Checkout Session
+const checkout = async (req, res) => {
+  try {
+    const { profileId } = req.user;
+    const cartItems = req.body;
+    const lineItems = cartItems.map((item) => {
+      let Price;
+      if (item.discountedPrice) {
+        Price = item.discountedPrice;
+      } else {
+        Price = item.price;
+      }
+      priceData = {
+        currency: "usd",
+        productData: { name: item.name },
+        unitPrice: Price * 100,
+      },
+    });
   } catch (error) {
     res.status(500).json({
       success: false,
