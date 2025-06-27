@@ -30,13 +30,14 @@ const limiter = rateLimit({
 });
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 //Import Routes
 const mainRoutes = require("./Routes/mainRoutes");
 const adminRoutes = require("./Routes/adminRoutes");
 
 //Mounting All Routes
-app.use("/ecommerce", limiter, mainRoutes);
+app.use("/ecommerce", mainRoutes);
 app.use("/ecommerce/admin", limiter, adminRoutes);
 app.use("/public", limiter, express.static(path.join(__dirname, "public")));
 
