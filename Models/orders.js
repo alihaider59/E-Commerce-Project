@@ -27,9 +27,10 @@ const ordersSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  payment_method: {
-    type: String,
-    default: "Cash on delivery",
+  paymentInfo: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Payment",
+    required: true,
   },
   status: {
     type: String,
@@ -42,7 +43,7 @@ const ordersSchema = new mongoose.Schema({
   },
   cancelReason: {
     type: String,
-    default: ""
+    default: "",
   },
 });
 

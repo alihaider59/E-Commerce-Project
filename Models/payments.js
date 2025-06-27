@@ -6,12 +6,7 @@ const paymentSchema = new mongoose.Schema({
     ref: "User-Profiles",
     required: true,
   },
-  orderId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Order",
-    required: true,
-  },
-  paymentIntentId: {
+  stripePaymentId: {
     type: String,
     required: true,
   },
