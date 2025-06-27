@@ -335,8 +335,13 @@ const orderProduct = async (req, res) => {
           message: `${product.name} is out of stock`,
           code: 409,
         });
-
-      total_amount += product.price * item.quantity;
+      let price;
+      if (product.discountedPrice) {
+        price = product.discountedPrice;
+      } else {
+        price = product.price;
+      }
+      total_amount += price * item.quantity;
       product.stock -= item.quantity;
       await product.save();
     }
