@@ -20,7 +20,7 @@ app.use(
 );
 
 // // 3. Prevent HTTP parameter pollution
-// app.use(hpp());
+app.use(hpp());
 
 // 4. Rate limiting (e.g. max 100 requests per 15 mins)
 const limiter = rateLimit({
