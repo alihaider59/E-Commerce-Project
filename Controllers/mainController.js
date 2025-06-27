@@ -716,11 +716,19 @@ const paymentIntent = async (req, res) => {
   }
 };
 
+
+// Test Api
+const testApi = async (req, res) => {
+  console.log("Heyy There")
+  res.send("Ok")
+}
+
 //Export Functions
 module.exports = {
   logIn,
   signUp,
   reviews,
+  testApi,
   viewOrders,
   getReviews,
   delProfile,
