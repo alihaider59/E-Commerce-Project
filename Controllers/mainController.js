@@ -22,6 +22,7 @@ const Categories = require("../Models/category");
 const UserLogins = require("../Models/userLogins");
 const GlobalDeals = require("../Models/globalDeals");
 const UserProfiles = require("../Models/userProfiles");
+const payments = require("../Models/payments");
 
 //SignUp
 const signUp = async (req, res) => {
@@ -320,7 +321,7 @@ const getOneProd = async (req, res) => {
 const orderProduct = async (req, res) => {
   try {
     const { profileId, email } = req.user;
-    const { ordered_products, shippingAddress } = req.body;
+    const { ordered_products, shippingAddress, stripePaymentId } = req.body;
     let total_amount = 0;
     for (let item of ordered_products) {
       const product = await Products.findById(item.product_id);
@@ -339,11 +340,17 @@ const orderProduct = async (req, res) => {
       product.stock -= item.quantity;
       await product.save();
     }
+    const payment = await Payments.create({
+      userId: profileId,
+      stripePaymentId,
+      amount: total_amount,
+    });
     const createOrder = await Orders.create({
       ordered_by: profileId,
       ordered_products,
       shippingAddress,
       total_amount,
+      paymentInfo: payment._id,
     });
     if (!createOrder)
       return res.status(500).json({
@@ -678,23 +685,21 @@ const getReviews = async (req, res) => {
   }
 };
 
-//Checkout Session
-const checkout = async (req, res) => {
+//Create Payment Intent
+const paymentIntent = async (req, res) => {
   try {
     const { profileId } = req.user;
-    const cartItems = req.body;
-    const lineItems = cartItems.map((item) => {
-      let Price;
-      if (item.discountedPrice) {
-        Price = item.discountedPrice;
-      } else {
-        Price = item.price;
-      }
-      priceData = {
-        currency: "usd",
-        productData: { name: item.name },
-        unitPrice: Price * 100,
-      }
+    const { amount } = req.body;
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round(amount * 100),
+      currency: "usd",
+      payment_method_types: ["card"],
+    });
+    res.status(200).json({
+      success: true,
+      message: "Payment intent created",
+      data: { clientSecret: paymentIntent.client_secret },
+      code: 200,
     });
   } catch (error) {
     res.status(500).json({
@@ -724,6 +729,7 @@ module.exports = {
   orderProduct,
   hashPassword,
   removeFromWL,
+  paymentIntent,
   updateReviews,
   addToWishlist,
   getCategories,

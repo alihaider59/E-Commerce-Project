@@ -20,6 +20,7 @@ const {
   viewWishlist,
   removeFromWL,
   orderProduct,
+  paymentIntent,
   updateReviews,
   getCategories,
   resetPassword,
@@ -64,6 +65,9 @@ router.patch("/feedback/:id", verifyToken, updateReviews);
 
 // // Category Routes
 router.get("/categories", getCategories);
+
+// // Stripe Payment Routes
+router.post("/create-payment-intent", verifyToken, paymentIntent);
 
 // router.post("/login", logIn);
 // router.post("/signup", signUp);

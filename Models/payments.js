@@ -10,15 +10,17 @@ const paymentSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  amountPaid: {
+  amount: {
     type: Number,
     required: true,
   },
   currency: {
     type: String,
+    default: "usd"
   },
   paymentStatus: {
     type: String,
+    default: "succeeded"
   },
 });
 
