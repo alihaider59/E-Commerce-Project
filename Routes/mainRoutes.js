@@ -8,7 +8,6 @@ const {
   logIn,
   signUp,
   reviews,
-  testApi,
   updateUser,
   delReviews,
   viewOrders,
@@ -69,9 +68,6 @@ router.get("/categories", getCategories);
 
 // // Stripe Payment Routes
 router.post("/create-payment-intent", verifyToken, paymentIntent);
-
-// // Test Api
-router.post("/testapi-api", verifyToken, testApi);
 
 // router.post("/login", logIn);
 // router.post("/signup", signUp);

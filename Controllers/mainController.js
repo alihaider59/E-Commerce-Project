@@ -728,7 +728,6 @@ module.exports = {
   logIn,
   signUp,
   reviews,
-  testApi,
   viewOrders,
   getReviews,
   delProfile,
