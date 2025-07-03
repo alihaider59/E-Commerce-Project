@@ -37,9 +37,9 @@ const limiter = rateLimit({
 });
 
 // 3. Mounting All Routes
+app.use("/public", express.static(path.join(__dirname, "public")));
 app.use("/ecommerce", limiter, mainRoutes);
 app.use("/ecommerce/admin", limiter, adminRoutes);
-app.use("/public", limiter, express.static(path.join(__dirname, "public")));
 
 // 4. Server and Socket
 const server = http.createServer(app);

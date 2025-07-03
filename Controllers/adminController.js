@@ -154,10 +154,9 @@ const updateProduct = async (req, res) => {
       return res
         .status(404)
         .json({ success: false, message: "Product not found", code: 404 });
-    const updateFields = {
-      ...product._doc,
-      ...req.body,
-    };
+
+    const updateFields = { ...req.body };
+
     const updatedProd = await Products.findByIdAndUpdate(
       req.params.id,
       updateFields,
