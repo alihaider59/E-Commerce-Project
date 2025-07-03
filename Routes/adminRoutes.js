@@ -5,6 +5,7 @@ router.use(express.json());
 //Import Functions and Middlewares
 const isAdmin = require("../Middlewares/adminMiddlewares/isAdmin");
 const {
+  getChat,
   delOrder,
   delCtgry,
   addDeals,
@@ -14,6 +15,7 @@ const {
   delProduct,
   viewOrders,
   addProduct,
+  getPayments,
   getProducts,
   createCtgry,
   createAdmin,
@@ -23,6 +25,7 @@ const {
   updateStatus,
   getCategories,
   updateProduct,
+  getUserPayment,
   delGlobalDeals,
   updateGlobalDeals,
 } = require("../Controllers/adminController");
@@ -63,6 +66,13 @@ router.patch("/deals/product/:id", isAdmin, addDeals); // per-product deal
 // // Feedback Routes
 router.get("/feedback/:id", isAdmin, getReviews);
 router.delete("/feedback/:id", isAdmin, delReviews);
+
+// // Payment Routes
+router.get("/payments", isAdmin, getPayments);
+router.get("/user/payments/:id", isAdmin, getUserPayment);
+
+// // Chat Routes
+router.get("/chats", isAdmin, getChat);
 
 // router.post("/create-admin", createAdmin);
 // router.get("/feedback/:id", isAdmin, getReviews);

@@ -3,8 +3,10 @@ const { hashPassword, comparePassword } = require("../Utils/hashPassword");
 const validateEmail = require("../Utils/validateEmail");
 
 //Import Models
+const Chats = require("../Models/chats");
 const Orders = require("../Models/orders");
 const Reviews = require("../Models/reviews");
+const Payments = require("../Models/payments");
 const Products = require("../Models/products");
 const Categories = require("../Models/category");
 const UserLogins = require("../Models/userLogins");
@@ -63,14 +65,12 @@ const getUsers = async (req, res) => {
         data: [],
         code: 200,
       });
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "All User's Profiles",
-        data: allProfiles,
-        code: 200,
-      });
+    res.status(200).json({
+      success: true,
+      message: "All User's Profiles",
+      data: allProfiles,
+      code: 200,
+    });
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -625,8 +625,90 @@ const delGlobalDeals = async (req, res) => {
   }
 };
 
+//Get Chats
+const getChat = async (req, res) => {
+  try {
+    const chat = await Chats.find({});
+    if (chat.length === 0)
+      return res.status(200).json({
+        success: true,
+        message: "No chats there",
+        data: [],
+        code: 200,
+      });
+    res.status(200).json({
+      success: true,
+      message: "All Chats",
+      data: chat,
+      code: 200,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+      code: 500,
+    });
+  }
+};
+
+//View Payments
+const getPayments = async (req, res) => {
+  try {
+    const payments = await Payments.find({});
+    if (payments.length === 0)
+      return res.status(200).json({
+        success: true,
+        message: "There is no any payment",
+        data: [],
+        code: 200,
+      });
+    res.status(200).json({
+      success: true,
+      message: "All payments",
+      data: payments,
+      code: 200,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+      code: 500,
+    });
+  }
+};
+
+// View Specific User Payments
+const getUserPayment = async (req, res) => {
+  try {
+    const payments = await Payments.find({ userId: req.params.id });
+    if (payments.length === 0)
+      return res.status(200).json({
+        success: true,
+        message: "There is no any payment",
+        data: [],
+        code: 200,
+      });
+    res.status(200).json({
+      success: true,
+      message: "Payments for this user",
+      data: payments,
+      code: 200,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+      code: 500,
+    });
+  }
+};
+
 //Export Functions
 module.exports = {
+  getChat,
   delOrder,
   addDeals,
   delCtgry,
@@ -636,6 +718,7 @@ module.exports = {
   addProduct,
   viewOrders,
   delProduct,
+  getPayments,
   getProducts,
   createCtgry,
   updateCtgry,
@@ -646,5 +729,6 @@ module.exports = {
   getCategories,
   updateProduct,
   delGlobalDeals,
+  getUserPayment,
   updateGlobalDeals,
 };

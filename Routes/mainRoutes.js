@@ -8,6 +8,7 @@ const {
   logIn,
   signUp,
   reviews,
+  aiChatbot,
   updateUser,
   delReviews,
   viewOrders,
@@ -15,8 +16,11 @@ const {
   getOneProd,
   getReviews,
   verifyEmail,
+  delChatUser,
   getProducts,
   cancelOrder,
+  getChatRoom,
+  getChatUser,
   viewWishlist,
   removeFromWL,
   orderProduct,
@@ -68,6 +72,12 @@ router.get("/categories", getCategories);
 
 // // Stripe Payment Routes
 router.post("/create-payment-intent", verifyToken, paymentIntent);
+
+// // Chat Routes
+router.post("/chatbot", verifyToken, aiChatbot);
+router.get("/chat/user", verifyToken, getChatUser);
+router.delete("/chat/user", verifyToken, delChatUser);
+router.get("/chat/room/:roomid", verifyToken, getChatRoom);
 
 // router.post("/login", logIn);
 // router.post("/signup", signUp);
