@@ -82,29 +82,15 @@ const getUsers = async (req, res) => {
 };
 
 //Add Product
+// No need to parse flashDeal
 const addProduct = async (req, res) => {
   try {
     const { flashDeal, ...product } = req.body;
 
-    console.log("FILES:", req.files);
-    console.log("BODY:", req.body);
-
-    if (req.files && req.files.length > 0) {
-      product.images = req.files.map(
-        (file) => `/public/images/${file.filename}`
-      );
-    }
-
-    if (typeof flashDeal === "string") {
-      try {
-        flashDeal = JSON.parse(flashDeal);
-      } catch (e) {
-        flashDeal = null;
-      }
-    }
-
     const now = new Date();
     let newProduct;
+    console.log(flashDeal)
+
     if (
       flashDeal?.isActive &&
       now >= new Date(flashDeal.startTime) &&
@@ -115,12 +101,13 @@ const addProduct = async (req, res) => {
       newProduct = await Products.create({
         discountedPrice,
         flashDeal,
+        dealType: "flash",
         ...product,
       });
-      product.dealType = "flash";
     } else {
       newProduct = await Products.create({ ...product });
     }
+
     res.status(201).json({
       success: true,
       message: "Product Added",
@@ -136,6 +123,7 @@ const addProduct = async (req, res) => {
     });
   }
 };
+
 
 //View Products
 const getProducts = async (req, res) => {

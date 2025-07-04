@@ -10,7 +10,7 @@ const productSchema = new mongoose.Schema({
     required: true,
   },
   price: {
-    type: Number, 
+    type: Number,
     required: true,
   },
   category: {
@@ -27,7 +27,7 @@ const productSchema = new mongoose.Schema({
     type: Number,
   },
   flashDeal: {
-    isActive: Boolean,
+    isActive: { type: Boolean, default: false },
     discountPercent: Number,
     startTime: Date,
     endTime: Date,

@@ -33,47 +33,37 @@ const {
 
 //Routes
 
-// // User Profiles Routes
-router.get("/profiles", isAdmin, getUsers);
-
-// // Admin Routes
-router.post("/admin/create", createAdmin);
-
-// // Product Routes
-router.get("/products", isAdmin, getProducts);
 router.post("/products", isAdmin, upload.array("images"), addProduct);
-router.delete("/products/:id", isAdmin, delProduct);
-router.patch("/products/:id", isAdmin, updateProduct);
+router.patch("/products/:id", upload.array("images"), isAdmin, updateProduct);
+router.post("/categories", upload.array("images"), isAdmin, createCtgry);
+router.patch("/categories/:id", upload.array("images"), isAdmin, updateCtgry);
 
-// // Category Routes
-router.post("/categories", isAdmin, createCtgry);
+// ✅ GET Routes (no body needed)
+router.get("/profiles", isAdmin, getUsers);
+router.get("/products", isAdmin, getProducts);
 router.get("/categories", isAdmin, getCategories);
-router.delete("/categories/:id", isAdmin, delCtgry);
-router.patch("/categories/:id", isAdmin, updateCtgry);
-
-// // Order Routes
 router.get("/orders", isAdmin, viewOrders);
-router.delete("/orders/:id", isAdmin, delOrder);
-router.patch("/orders/:id/cancel", isAdmin, cancelOrder);
-router.patch("/orders/:id/status", isAdmin, updateStatus);
-
-// // Deal Routes
-router.post("/deals/global", isAdmin, globalDeals);
-router.delete("/deals/global/:id", isAdmin, delGlobalDeals);
-router.patch("/deals/global/:id", isAdmin, updateGlobalDeals);
-
-router.patch("/deals/product/:id", isAdmin, addDeals); // per-product deal
-
-// // Feedback Routes
 router.get("/feedback/:id", isAdmin, getReviews);
-router.delete("/feedback/:id", isAdmin, delReviews);
-
-// // Payment Routes
 router.get("/payments", isAdmin, getPayments);
 router.get("/user/payments/:id", isAdmin, getUserPayment);
-
-// // Chat Routes
 router.get("/chats", isAdmin, getChat);
+
+// ✅ POST Routes (no images, use upload.none())
+router.post("/admin/create", upload.none(), createAdmin);
+router.post("/deals/global", isAdmin, upload.none(), globalDeals);
+
+// ✅ DELETE Routes (no body, so no need for upload.none())
+router.delete("/products/:id", isAdmin, delProduct);
+router.delete("/categories/:id", isAdmin, delCtgry);
+router.delete("/orders/:id", isAdmin, delOrder);
+router.delete("/deals/global/:id", isAdmin, delGlobalDeals);
+router.delete("/feedback/:id", isAdmin, delReviews);
+
+// ✅ PATCH Routes (need body, use upload.none())
+router.patch("/orders/:id/cancel", isAdmin, upload.none(), cancelOrder);
+router.patch("/orders/:id/status", isAdmin, upload.none(), updateStatus);
+router.patch("/deals/global/:id", isAdmin, upload.none(), updateGlobalDeals);
+router.patch("/deals/product/:id", isAdmin, upload.none(), addDeals);
 
 //Export Routes
 module.exports = router;

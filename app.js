@@ -38,7 +38,7 @@ const limiter = rateLimit({
 });
 
 // 3. Mounting All Routes
-app.use("/public", express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "public")));
 app.use("/ecommerce", limiter, mainRoutes);
 app.use("/ecommerce/admin", limiter, adminRoutes);
 
