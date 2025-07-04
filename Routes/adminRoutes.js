@@ -3,6 +3,7 @@ const router = express.Router();
 router.use(express.json());
 
 //Import Functions and Middlewares
+const upload = require("../Middlewares/upload");
 const isAdmin = require("../Middlewares/adminMiddlewares/isAdmin");
 const {
   getChat,
@@ -40,7 +41,7 @@ router.post("/admin/create", createAdmin);
 
 // // Product Routes
 router.get("/products", isAdmin, getProducts);
-router.post("/products", isAdmin, addProduct);
+router.post("/products", isAdmin, upload.array("images"), addProduct);
 router.delete("/products/:id", isAdmin, delProduct);
 router.patch("/products/:id", isAdmin, updateProduct);
 
@@ -73,26 +74,6 @@ router.get("/user/payments/:id", isAdmin, getUserPayment);
 
 // // Chat Routes
 router.get("/chats", isAdmin, getChat);
-
-// router.post("/create-admin", createAdmin);
-// router.get("/feedback/:id", isAdmin, getReviews);
-// router.get("/total-orders", isAdmin, viewOrders);
-// router.post("/add-product", isAdmin, addProduct);
-// router.get("/categories", isAdmin, getCategories);
-// router.get("/all-products", isAdmin, getProducts);
-// router.patch("/add-discount/:id", isAdmin, addDeals);
-// router.post("/add-global-deal", isAdmin, globalDeals);
-// router.post("/create-category", isAdmin, createCtgry);
-// router.delete("/delete-order/:id", isAdmin, delOrder);
-// router.patch("/cancel-order/:id", isAdmin, cancelOrder);
-// router.delete("/delete-category/:id", isAdmin, delCtgry);
-// router.delete("/delete-product/:id", isAdmin, delProduct);
-// router.delete("/delete-feedback/:id", isAdmin, delReviews);
-// router.patch("/update-category/:id", isAdmin, updateCtgry);
-// router.delete("/delete-deal/:id", isAdmin, delGlobalDeals);
-// router.patch("/update-product/:id", isAdmin, updateProduct);
-// router.patch("/update-deal/:id", isAdmin, updateGlobalDeals);
-// router.patch("/update-order-status/:id", isAdmin, updateStatus);
 
 //Export Routes
 module.exports = router;

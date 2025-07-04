@@ -8,10 +8,11 @@ const express = require("express");
 const Chat = require("./Models/chats");
 const rateLimit = require("express-rate-limit");
 const authSocket = require("./Middlewares/authSocket");
+const upload = require("./Middlewares/upload");
+const handleSocket = require("./Utils/socketio");
 const { Server } = require("socket.io");
 
 //Import Routes
-const handleSocket = require("./Utils/socketio");
 const mainRoutes = require("./Routes/mainRoutes");
 const adminRoutes = require("./Routes/adminRoutes");
 
