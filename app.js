@@ -11,6 +11,8 @@ const authSocket = require("./Middlewares/authSocket");
 const upload = require("./Middlewares/upload");
 const handleSocket = require("./Utils/socketio");
 const { Server } = require("socket.io");
+const { swaggerUi, swaggerSpec } = require("./swagger");
+const color = require("colors");
 
 //Import Routes
 const mainRoutes = require("./Routes/mainRoutes");
@@ -38,9 +40,17 @@ const limiter = rateLimit({
 });
 
 // 3. Mounting All Routes
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(express.static(path.join(__dirname, "public")));
-app.use("/ecommerce", limiter, mainRoutes);
-app.use("/ecommerce/admin", limiter, adminRoutes);
+app.use("/api/ecommerce", limiter, mainRoutes);
+app.use("/api/ecommerce/admin", limiter, adminRoutes);
+
+// Default route
+app.get("/", (req, res) => {
+  res.send(
+    "<h1>Welcome to the E-Commerce Backend API is running 🚀</h1><p>Visit <a href='/api-docs'>Swagger Docs</a> for API documentation.</p>"
+  );
+});
 
 // 4. Server and Socket
 const server = http.createServer(app);
@@ -54,5 +64,6 @@ handleSocket(io);
 const port = 8000;
 server.listen(port, () => {
   console.log(`Server is started at:${port}`);
-  console.log("Mongo URI:", process.env.MONGO_URI);
+  console.log("Mongo URI:".blue, process.env.MONGO_URI);
+  console.log(`Swagger docs available at: http://localhost:${port}/api-docs`);
 });

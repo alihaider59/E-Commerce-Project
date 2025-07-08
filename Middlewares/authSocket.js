@@ -8,7 +8,7 @@ const authSocket = (socket, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, "abc123");
+    const decoded = jwt.verify(token, process.env.TOKEN_SECRET);
     socket.data.user = decoded;
     next();
   } catch (error) {

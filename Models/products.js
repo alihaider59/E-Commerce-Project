@@ -27,7 +27,7 @@ const productSchema = new mongoose.Schema({
     type: Number,
   },
   flashDeal: {
-    isActive: { type: Boolean, default: false },
+    isActive: Boolean,
     discountPercent: Number,
     startTime: Date,
     endTime: Date,

@@ -1,6 +1,5 @@
 const UserProfiles = require("../../Models/userProfiles");
 const jwt = require("jsonwebtoken");
-const secret = "abc123";
 
 const isAdmin = async (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -12,7 +11,7 @@ const isAdmin = async (req, res, next) => {
   const token = authHeader.split(" ")[1];
 
   try {
-    const decoded = jwt.verify(token, secret);
+    const decoded = jwt.verify(token, process.env.TOKEN_SECRET);
     const _id = decoded.profileId;
     const adminCheck = await UserProfiles.findOne({ _id });
     if (adminCheck.role === "admin") {
