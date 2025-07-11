@@ -31,8 +31,8 @@ const options = {
     ],
   },
   apis: [
-    path.join(__dirname, "../Swagger/mainRoutes/*.js"),
-    path.join(__dirname, "../Swagger/adminRoutes/*.js"),
+    path.join(__dirname, "../SwaggerDocs/mainRoutes/*.js"),
+    path.join(__dirname, "../SwaggerDocs/adminRoutes/*.js"),
   ],
 };
 
