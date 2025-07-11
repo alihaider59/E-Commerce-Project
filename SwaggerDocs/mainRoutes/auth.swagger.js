@@ -9,6 +9,9 @@
  *         application/x-www-form-urlencoded:
  *           schema:
  *             type: object
+ *             required:
+ *               - email
+ *               - password
  *             properties:
  *               email:
  *                 type: string
@@ -41,16 +44,32 @@
  *         application/x-www-form-urlencoded:
  *           schema:
  *             type: object
+ *             required:
+ *               - name
+ *               - phone
+ *               - address
+ *               - country
+ *               - email
+ *               - password
  *             properties:
+ *               name:
+ *                 type: string
+ *                 example: John Doe
+ *               phone:
+ *                 type: string
+ *                 example: "+1234567890"
+ *               address:
+ *                 type: string
+ *                 example: "123 Main St, City"
+ *               country:
+ *                 type: string
+ *                 example: "USA"
  *               email:
  *                 type: string
  *                 example: user@example.com
  *               password:
  *                 type: string
  *                 example: password123
- *               name:
- *                 type: string
- *                 example: John Doe
  *     responses:
  *       201:
  *         description: Signup successful
@@ -68,13 +87,12 @@
  *         application/x-www-form-urlencoded:
  *           schema:
  *             type: object
+ *             required:
+ *               - email
  *             properties:
  *               email:
  *                 type: string
  *                 example: user@example.com
- *               code:
- *                 type: string
- *                 example: 123456
  *     responses:
  *       200:
  *         description: Email verified
@@ -92,10 +110,16 @@
  *         application/x-www-form-urlencoded:
  *           schema:
  *             type: object
+ *             required:
+ *               - email
+ *               - password
  *             properties:
  *               email:
  *                 type: string
  *                 example: user@example.com
+ *               password:
+ *                 type: string
+ *                 example: newpassword123
  *     responses:
  *       200:
  *         description: Password reset link sent
@@ -115,8 +139,14 @@
  *         application/x-www-form-urlencoded:
  *           schema:
  *             type: object
+ *             required:
+ *               - oldPassword
+ *               - newPassword
  *             properties:
- *               password:
+ *               oldPassword:
+ *                 type: string
+ *                 example: oldpassword123
+ *               newPassword:
  *                 type: string
  *                 example: newpassword123
  *     responses:

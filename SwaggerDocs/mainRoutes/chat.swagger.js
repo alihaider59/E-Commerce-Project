@@ -40,6 +40,12 @@
  *         application/x-www-form-urlencoded:
  *           schema:
  *             type: object
+ *             required:
+ *               - message
+ *             properties:
+ *               message:
+ *                 type: string
+ *                 example: "Hello, how can I help you?"
  *     responses:
  *       200:
  *         description: Chatbot response

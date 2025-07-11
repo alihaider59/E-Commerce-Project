@@ -55,6 +55,20 @@
  *         application/x-www-form-urlencoded:
  *           schema:
  *             type: object
+ *             required:
+ *               - product
+ *               - rating
+ *               - feedback
+ *             properties:
+ *               product:
+ *                 type: string
+ *                 example: "64a1b2c3d4e5f6a7b8c9d0e1"
+ *               rating:
+ *                 type: integer
+ *                 example: 5
+ *               feedback:
+ *                 type: string
+ *                 example: "Great product and fast delivery!"
  *     responses:
  *       201:
  *         description: Feedback added

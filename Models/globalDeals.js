@@ -4,6 +4,7 @@ const globalDealsSchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     default: false,
+    required: true,
   },
   discountPercent: {
     type: Number,
