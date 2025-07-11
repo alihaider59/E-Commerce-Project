@@ -8,7 +8,7 @@ const productRoutes = require("./mainRoutes/productRoutes");
 const orderRoutes = require("./mainRoutes/orderRoutes");
 const wishlistRoutes = require("./mainRoutes/wishlistRoutes");
 const stripeRoutes = require("./mainRoutes/stripeRoutes");
-const chatRoutes = require("./adminRoutes/chatRoutes");
+const chatRoutes = require("./mainRoutes/chatRoutes");
 const feedbackRoutes = require("./mainRoutes/feedbackRoutes");
 const profileRoutes = require("./mainRoutes/profileRoutes");
 

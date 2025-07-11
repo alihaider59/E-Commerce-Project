@@ -11,7 +11,7 @@ const authSocket = require("./Middlewares/authSocket");
 const upload = require("./Middlewares/upload");
 const handleSocket = require("./Utils/socketio");
 const { Server } = require("socket.io");
-const { swaggerUi, swaggerSpec } = require("./swagger");
+const { swaggerUi, swaggerSpec } = require("./Utils/swagger");
 const color = require("colors");
 
 //Import Routes
@@ -25,7 +25,7 @@ app.use(helmet());
 app.use(hpp());
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:3001"],
+    origin: process.env.FRONTEND_URL || "http://localhost:3001",
     credentials: true,
   })
 );

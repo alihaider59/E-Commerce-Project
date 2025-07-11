@@ -11,13 +11,13 @@ const paymentRoutes = require("./adminRoutes/paymentRoutes");
 const feedbackRoutes = require("./adminRoutes/feedbackRoutes");
 const categoryRoutes = require("./adminRoutes/categoryRoutes");
 
-router.use("/admin", chatRoutes);
-router.use("/admin", userRoutes);
-router.use("/admin", dealRoutes);
-router.use("/admin", orderRoutes);
-router.use("/admin", productRoutes);
-router.use("/admin", paymentRoutes);
-router.use("/admin", feedbackRoutes);
-router.use("/admin", categoryRoutes);
+router.use("/", chatRoutes);
+router.use("/", userRoutes);
+router.use("/", dealRoutes);
+router.use("/", orderRoutes);
+router.use("/", productRoutes);
+router.use("/", paymentRoutes);
+router.use("/", feedbackRoutes);
+router.use("/", categoryRoutes);
 
 module.exports = router;
