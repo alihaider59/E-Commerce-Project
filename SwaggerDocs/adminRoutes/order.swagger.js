@@ -33,6 +33,18 @@
  *         required: true
  *         schema:
  *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/x-www-form-urlencoded:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - cancelReason
+ *             properties:
+ *               cancelReason:
+ *                 type: string
+ *                 example: "Customer requested cancellation"
  *     responses:
  *       200:
  *         description: Order cancelled
@@ -53,6 +65,12 @@
  *         application/x-www-form-urlencoded:
  *           schema:
  *             type: object
+ *             required:
+ *               - status
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 example: "shipped"
  *     responses:
  *       200:
  *         description: Order status updated

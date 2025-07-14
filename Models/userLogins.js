@@ -6,6 +6,10 @@ const loginSchema = new mongoose.Schema({
     ref: "User-Profiles",
     required: true,
   },
+  refreshToken:{
+    type: String,
+    default: ''
+  },
   email: {
     type: String,
     required: true,

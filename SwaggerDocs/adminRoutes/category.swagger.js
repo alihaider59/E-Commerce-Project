@@ -31,6 +31,17 @@
  *         multipart/form-data:
  *           schema:
  *             type: object
+ *             required:
+ *               - name
+ *               - icon
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: "Electronics"
+ *               icon:
+ *                 type: string
+ *                 format: binary
+ *                 description: Image file (jpg, jpeg, or png)
  *     responses:
  *       201:
  *         description: Category added
@@ -50,6 +61,17 @@
  *         multipart/form-data:
  *           schema:
  *             type: object
+ *             required:
+ *               - name
+ *               - icon
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: "Electronics"
+ *               icon:
+ *                 type: string
+ *                 format: binary
+ *                 description: Image file (jpg, jpeg, or png)
  *     responses:
  *       200:
  *         description: Category updated

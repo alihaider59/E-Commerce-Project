@@ -41,6 +41,16 @@
  *         application/x-www-form-urlencoded:
  *           schema:
  *             type: object
+ *             required:
+ *               - rating
+ *               - comment
+ *             properties:
+ *               rating:
+ *                 type: integer
+ *                 example: 4
+ *               comment:
+ *                 type: string
+ *                 example: "Updated feedback comment"
  *     responses:
  *       200:
  *         description: Feedback updated

@@ -9,7 +9,7 @@
  *       200:
  *         description: Wishlist retrieved
  *   post:
- *     summary: Add to wishlist
+ *     summary: Add product to wishlist
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -18,9 +18,15 @@
  *         application/x-www-form-urlencoded:
  *           schema:
  *             type: object
+ *             required:
+ *               - productId
+ *             properties:
+ *               productId:
+ *                 type: string
+ *                 example: "64a1b2c3d4e5f6a7b8c9d0e1"
  *     responses:
  *       201:
- *         description: Added to wishlist
+ *         description: Product added to wishlist
  * /wishlist/{id}:
  *   delete:
  *     summary: Remove from wishlist

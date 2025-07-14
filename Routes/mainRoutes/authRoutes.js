@@ -8,6 +8,7 @@ const verifyToken = require("../../Middlewares/verifyToken");
 const {
   logIn,
   signUp,
+  logout,
   verifyEmail,
   resetPassword,
   forgetPassowrd,
@@ -17,6 +18,7 @@ const {
 router.post("/auth/login", upload.none(), logIn);
 router.post("/auth/signup", upload.none(), signUp);
 router.post("/auth/verify-email", upload.none(), verifyEmail);
+router.post("/auth/logout", verifyToken, upload.none(), logout);
 router.patch("/auth/forgot-password", upload.none(), forgetPassowrd);
 router.patch("/auth/reset-password", verifyToken, upload.none(), resetPassword);
 

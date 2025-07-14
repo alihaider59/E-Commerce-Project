@@ -65,14 +65,23 @@ const logIn = async (req, res) => {
         email: user.email,
         profileId: user.profileId,
       };
-      const token = jwt.sign(payload, process.env.TOKEN_SECRET, {
-        expiresIn: "1d",
+      const accessToken = jwt.sign(payload, process.env.TOKEN_SECRET, {
+        expiresIn: "15m",
       });
+
+      const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, {
+        expiresIn: "7d",
+      });
+
+      user.refreshToken = refreshToken;
+      await user.save();
+
       res.status(200).json({
         success: true,
         message: "Login Successfully",
         data: {
-          token: token,
+          accessToken: accessToken,
+          refreshToken: refreshToken,
         },
         code: 200,
       });
@@ -86,6 +95,18 @@ const logIn = async (req, res) => {
     });
   }
 };
+
+//Logout
+const logout = async (req, res) => {
+  const { refreshToken } = req.body;
+  const user = await UserLogins.findOne({ refreshToken });
+  if (user) {
+    user.refreshToken = '';
+    await user.save();
+  }
+  res.status(200).json({ message: 'Logged out successfully' });
+};
+
 
 //View Profile
 const viewProfile = async (req, res) => {
@@ -261,9 +282,10 @@ const resetPassword = async (req, res) => {
 module.exports = {
   logIn,
   signUp,
-  viewProfile,
+  logout,
   updateUser,
   delProfile,
+  viewProfile,
   verifyEmail,
   forgetPassowrd,
   resetPassword,

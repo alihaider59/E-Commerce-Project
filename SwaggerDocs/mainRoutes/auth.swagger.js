@@ -156,4 +156,23 @@
  *         description: Invalid token or password
  *       500:
  *         description: Server error
+ *
+ * /auth/logout:
+ *   post:
+ *     summary: User logout
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/x-www-form-urlencoded:
+ *           schema:
+ *             type: object
+ *     responses:
+ *       200:
+ *         description: Logout successful
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Server error
  */
