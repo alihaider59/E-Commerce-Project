@@ -5,7 +5,7 @@ const isSuperAdmin = async (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.json({ message: "Access denied. No token provided" });
+    return res.status(401).json({ message: "Access denied. No token provided", code: 401 });
   }
 
   const token = authHeader.split(" ")[1];
@@ -23,7 +23,7 @@ const isSuperAdmin = async (req, res, next) => {
         .json({ message: "Access denied: Super Admin only" });
     }
   } catch (error) {
-    res.json({ message: "Something went wrong!", Error: error.message });
+    res.status(500).json({ message: "Something went wrong!", Error: error.message, code: 500 });
   }
 };
 
